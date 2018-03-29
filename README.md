@@ -24,7 +24,8 @@ Clone the repo into the pico-8's cartridge store. This can be found using the pi
 ## Differences
 
   * Board size 9x16 instead of 10x18. This is probably possible to fix but would intraduce other differences like the blocks having different patterns and there would probabaly have to be a border around the playfield.
-  *
+  * I went for a more washed-out version of the graphics as that fits within the pico-8's pallets quite nicely as well as keeping mostly to the original colours.
+  * I haven't replicated the original game's fonts. I think that the original font font would have to be squashed toghether to fit on the pico-8.
 
 ## License
 
