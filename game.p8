@@ -66,6 +66,89 @@ frames_per_cell = 3
 -- game state
 s={}
 
+-- custom bignum impl for score
+num_max = 10000
+num_min = -10000
+
+local bignum_mt = {}
+
+function newbignum(b, s)
+ local bignum = {
+  big = b,
+  small = s
+ }
+ setmetatable(bignum, bignum_mt)
+ return bignum
+end
+
+function bignum_mt.__add(bignum, num)
+ if type(bignum) == "number" then
+  -- swap operand order
+  temp = num
+  num = bignum
+  bignum = temp
+ end
+
+ local big = bignum.big
+ local small = bignum.small
+
+ small += num
+
+ -- if overflow small
+ while small >= num_max do
+  small -= num_max
+  big += 1
+ end
+
+ -- if negative small
+ while small < 0 and big > 0 do
+  small += num_max
+  big -= 1
+ end
+
+ return newbignum(big, small)
+end
+
+function bignum_mt.__sub(bignum, num)
+ if type(bignum) == "number" then
+  return num + (- bignum)
+ else
+  return bignum + (- num)
+ end
+end
+
+local bignum_methods = {}
+
+function bignum_methods.tostr(self)
+ local s = "" .. self.small
+ if self.big > 0 then
+  while #s < 4 do
+    s = "0" .. s
+  end
+  return self.big .. s
+ else
+  return s
+ end
+end
+
+function bignum_methods.print(self)
+ print(self:tostr())
+end
+
+bignum_mt.__index = bignum_methods
+
+local oldprint = print
+
+function print(val, ...)
+ if type(val) == "table" and val.tostring then
+  oldprint(val:tostring(), ...)
+ else
+  oldprint(val, ...)
+ end
+end
+
+
+-- functions
 function rnd_elem(t)
  return t[flr(rnd(#t))+1]
 end
@@ -124,7 +207,7 @@ function _init()
  end
 
  -- counts
- s.score=0
+ s.score = newbignum(0,0)
  s.level=0
  s.lines=0
  s.mode=0 -- 0=marathon, 1=
@@ -439,7 +522,7 @@ function _draw()
        99,s_h,
        5)
  --- number
- rprint(s.score,
+ rprint(s.score:tostr(),
         115,s_h+12,
         5)
 
